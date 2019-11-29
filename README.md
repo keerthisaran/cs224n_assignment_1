@@ -1,1 +1,2 @@
-# cs224n_assignment_1
+# XCS224N-A1
+A1 student code
