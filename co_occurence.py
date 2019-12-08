@@ -20,11 +20,21 @@ def distinctWords(corpus):
             corpus_words (list of strings): list of distinct words across the corpus, sorted (using python 'sorted' function)
             num_corpus_words (integer): number of distinct words across the corpus
     """
+
     corpus_words = []
     num_corpus_words = -1
-
     ### SOLUTION BEGIN
     ### SOLUTION END
+    dict_words={}
+
+    for sent in corpus:
+        for word in sent:
+            dict_words[word]=dict_words.get(word,0)+1
+
+    corpus_words=sorted(list(dict_words))
+    num_corpus_words=len(corpus_words)
+
+
 
     return corpus_words, num_corpus_words
 
@@ -49,9 +59,23 @@ def computeCoOccurrenceMatrix(corpus, window_size=4):
     """
     words, num_words = distinctWords(corpus)
     M = None
-    word2Ind = {}
+    word2Ind = {word:ind for word,ind in zip(words,list(range(num_words))) }
+    M=np.zeros([num_words,num_words])
 
     ### SOLUTION BEGIN
+    for sent in corpus:
+        for center_ind,cent_word in enumerate(sent):
+            right = min(len(sent), center_ind + window_size + 1)
+            left = max(center_ind - window_size, 0)
+            if center_ind==0:
+                search_string = sent[center_ind+1:right]
+            elif center_ind==len(sent)-1:
+                search_string = sent[left:center_ind]
+            else:
+                search_string = sent[left:center_ind] + sent[center_ind + 1:right]
+            for out_word in search_string:
+                M[word2Ind[out_word],word2Ind[cent_word]] += 1
+
     ### SOLUTION END
 
     return M, word2Ind
@@ -114,6 +138,7 @@ def test_computeCoOccurenceMatrix():
     print("\n\t\t\t Testing computeCoOccurrenceMatrix \t\t\t")
 
     test_corpus = toyCorpus()
+    print(test_corpus)
     M_test, word2Ind_test = computeCoOccurrenceMatrix(test_corpus, window_size=2)
 
     M_test_ans, word2Ind_test_ans = toyCorpusCoOccurence()
